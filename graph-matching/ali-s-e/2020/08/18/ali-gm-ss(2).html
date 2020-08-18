@@ -479,11 +479,14 @@ window.onload = wrap_img;
     
     
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p><div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">diff</span> <span class="o">=</span> <span class="n">scores_opt</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">scores</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse</span>
+<span class="n">diff</span> <span class="o">=</span> <span class="n">scores_opt</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">scores</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Objective Value Difference (&quot;Best Case&quot; - argmax_t[objective_t])&#39;</span><span class="p">)</span>
@@ -493,7 +496,8 @@ window.onload = wrap_img;
     </div>
 </div>
 </div>
-
+</p>
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
@@ -527,11 +531,14 @@ window.onload = wrap_img;
     
     
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p><div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">diff</span> <span class="o">=</span> <span class="n">ratios_opt</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">ratios</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse</span>
+<span class="n">diff</span> <span class="o">=</span> <span class="n">ratios_opt</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">ratios</span><span class="p">[</span><span class="mi">9</span><span class="p">,:]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Match Ratio Difference (&quot;Best Case&quot; - argmax_t[objective_t])&#39;</span><span class="p">)</span>
@@ -541,7 +548,8 @@ window.onload = wrap_img;
     </div>
 </div>
 </div>
-
+</p>
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
