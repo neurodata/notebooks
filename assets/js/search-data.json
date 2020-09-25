@@ -3,7 +3,7 @@
     
         "post0": {
             "title": "gzipping a connectome",
-            "content": "# Change directory to VSCode workspace root so that relative path loads work correctly. Turn this addition off with the DataScience.changeDirOnImportExport setting # ms-python.python added import os try: os.chdir(os.path.join(os.getcwd(), &#39;../../../maggot_models&#39;)) print(os.getcwd()) except: pass . import gzip edgelist_loc = &quot;maggot_models/data/processed/2020-09-23/G.edgelist&quot; with open(edgelist_loc, &quot;rb&quot;) as f: raw_edgelist = f.read() raw_kb = len(raw_edgelist) / 1000 gzip_edgelist = gzip.compress(raw_edgelist) gzip_kb = len(gzip_edgelist) / 1000 print(f&quot;Raw edgelist size: {raw_kb:.2f} kb&quot;) print(f&quot;Gzipped edgelist size: {gzip_kb:.2f} kb&quot;) print(f&quot;Compression ratio: {gzip_kb/raw_kb:.2f}&quot;) . Raw edgelist size: 2037.68 kb Gzipped edgelist size: 498.20 kb Compression ratio: 0.24 .",
+            "content": "import gzip edgelist_loc = &quot;maggot_models/data/processed/2020-09-23/G.edgelist&quot; with open(edgelist_loc, &quot;rb&quot;) as f: raw_edgelist = f.read() raw_kb = len(raw_edgelist) / 1000 gzip_edgelist = gzip.compress(raw_edgelist) gzip_kb = len(gzip_edgelist) / 1000 print(f&quot;Raw edgelist size: {raw_kb:.2f} kb&quot;) print(f&quot;Gzipped edgelist size: {gzip_kb:.2f} kb&quot;) print(f&quot;Compression ratio: {gzip_kb/raw_kb:.2f}&quot;) . Raw edgelist size: 2037.68 kb Gzipped edgelist size: 498.20 kb Compression ratio: 0.24 .",
             "url": "https://neurodata.github.io/notebooks/pedigo/graspologic/2020/09/25/gzip-connectome.html",
             "relUrl": "/pedigo/graspologic/2020/09/25/gzip-connectome.html",
             "date": " • Sep 25, 2020"
