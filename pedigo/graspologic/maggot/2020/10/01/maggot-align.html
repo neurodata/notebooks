@@ -386,6 +386,7 @@ Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/left-right
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># collapse</span>
 
+
 <span class="k">def</span> <span class="nf">plot_latents</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="n">plot_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;Left&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;Right&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="p">))</span>
@@ -531,6 +532,7 @@ Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/in-latent-
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># collapse</span>
 
+
 <span class="k">def</span> <span class="nf">run_alignments</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
     <span class="n">op</span> <span class="o">=</span> <span class="n">OrthogonalProcrustes</span><span class="p">()</span>
     <span class="n">X_trans_op</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
@@ -550,7 +552,7 @@ Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/in-latent-
 <span class="n">sp_diff_norm</span> <span class="o">=</span> <span class="n">calc_diff_norm</span><span class="p">(</span><span class="n">sp_left_out_latent</span><span class="p">,</span> <span class="n">right_out_latent</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Procrustes diff. norm using true pairs: </span><span class="si">{</span><span class="n">op_diff_norm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seedless Procrustes diff. norm using true pairs: </span><span class="si">{</span><span class="n">op_diff_norm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seedless Procrustes diff. norm using true pairs: </span><span class="si">{</span><span class="n">sp_diff_norm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -565,7 +567,7 @@ Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/in-latent-
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Procrustes diff. norm using true pairs: 10.007906899476886
-Seedless Procrustes diff. norm using true pairs: 10.007906899476886
+Seedless Procrustes diff. norm using true pairs: 10.303727955359674
 </pre>
 </div>
 </div>
@@ -703,6 +705,8 @@ the aligned embedded space".</li>
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># collapse</span>
 
+
+
 <span class="k">def</span> <span class="nf">calc_nn_ranks</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
     <span class="n">n_pairs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
     <span class="n">nn</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">n_pairs</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
@@ -739,6 +743,7 @@ the aligned embedded space".</li>
 <span class="n">plot_rank_cdf</span><span class="p">(</span><span class="n">op_ranks</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="s2">&quot;OP&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;OP&quot;</span><span class="p">)</span>
 <span class="n">plot_rank_cdf</span><span class="p">(</span><span class="n">sp_ranks</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="s2">&quot;SP&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SP&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">stashfig</span><span class="p">(</span><span class="s2">&quot;rank-cdf&quot;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -751,12 +756,11 @@ the aligned embedded space".</li>
 
 <div class="output_area">
 
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;matplotlib.legend.Legend at 0x7f84fa552550&gt;</pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/rank-cdf.pdf
+Saved figure to maggot_models/notebooks/outs/182.1-BDP-try-align/figs/rank-cdf.png
+</pre>
 </div>
-
 </div>
 
 <div class="output_area">
