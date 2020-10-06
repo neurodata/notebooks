@@ -993,11 +993,17 @@ Test accuracy score for NN 8: 0.9462962962962963
     
     
 <div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
 <div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">embed</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># collapse</span>
+
+
+<span class="k">def</span> <span class="nf">embed</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
     <span class="n">ase</span> <span class="o">=</span> <span class="n">AdjacencySpectralEmbed</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">"full"</span><span class="p">)</span>
     <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
     <span class="n">elbow_inds</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select_dimension</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">n_elbows</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -1043,6 +1049,7 @@ Test accuracy score for NN 8: 0.9462962962962963
 </div>
 </div>
 
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
