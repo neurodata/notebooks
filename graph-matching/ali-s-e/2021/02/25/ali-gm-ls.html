@@ -109,7 +109,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      44 min read
+      34 min read
     
 </span></p>
 
@@ -186,171 +186,6 @@ window.onload = wrap_img;
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="c1"># from graspy.match import GraphMatch as GMP</span>
-<span class="kn">from</span> <span class="nn">graspologic.simulations</span> <span class="kn">import</span> <span class="n">sbm_corr</span>
-<span class="c1"># from scipy.optimize import linear_sum_assignment</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">pairwise_distances</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="mi">50</span>
-<span class="n">t</span><span class="o">=</span><span class="mi">10</span>
-<span class="c1"># gmp = GraphMatch(&#39;maximize&#39;:True, &#39;tol&#39;:0.000001,&#39;maxiter&#39;:30, &#39;shuffle_input&#39;:True)</span>
-<span class="k">def</span> <span class="nf">match_ratio</span><span class="p">(</span><span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">inds</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">/</span> <span class="n">n</span>
-
-        
-<span class="n">n</span> <span class="o">=</span> <span class="mi">150</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">r</span>
-<span class="n">rhos</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">11</span><span class="p">)[</span><span class="mi">5</span><span class="p">:]</span>
-<span class="c1"># rhos = np.arange(8,10.5,0.5) *0.1</span>
-<span class="n">n_p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhos</span><span class="p">)</span>
-
-<span class="n">ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-<span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-
-<span class="n">ratios_ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-<span class="n">scores_ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-
-
-<span class="n">n_per_block</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">n_blocks</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">block_members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n_blocks</span> <span class="o">*</span> <span class="p">[</span><span class="n">n_per_block</span><span class="p">])</span>
-<span class="n">block_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]])</span>
-<span class="n">directed</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">loops</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">rho</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rhos</span><span class="p">):</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">8888</span><span class="p">)</span>
-    <span class="n">seeds</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mf">1e8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
-    <span class="k">def</span> <span class="nf">run_sim</span><span class="p">(</span><span class="n">seed</span><span class="p">):</span>
-        
-        <span class="n">A1</span><span class="p">,</span> <span class="n">A2</span> <span class="o">=</span> <span class="n">sbm_corr</span><span class="p">(</span>
-            <span class="n">block_members</span><span class="p">,</span> <span class="n">block_probs</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="n">directed</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="n">loops</span>
-        <span class="p">)</span>
-        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">res_opt</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="n">score_ss</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">res_opt_ss</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">quadratic_assignment</span><span class="p">(</span><span class="n">A1</span><span class="p">,</span><span class="n">A2</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maximize&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span><span class="mf">0.000001</span><span class="p">,</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;shuffle_input&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">fun</span><span class="o">&gt;</span><span class="n">score</span><span class="p">:</span>
-                <span class="n">perm</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">col_ind</span>
-                <span class="n">score</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">fun</span>
-
-            <span class="n">res_ss</span> <span class="o">=</span> <span class="n">quadratic_assignment_ls</span><span class="p">(</span><span class="n">A1</span><span class="p">,</span><span class="n">A2</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maximize&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span><span class="mf">0.000001</span><span class="p">,</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;shuffle_input&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">fun</span><span class="o">&gt;</span><span class="n">score_ss</span><span class="p">:</span>
-                <span class="n">perm_ss</span> <span class="o">=</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">col_ind</span>
-                <span class="n">score_ss</span> <span class="o">=</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">fun</span>
-                
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">match_ratio</span><span class="p">(</span><span class="n">perm</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-
-        <span class="n">ratio_ss</span> <span class="o">=</span> <span class="n">match_ratio</span><span class="p">(</span><span class="n">perm_ss</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">ratio_ss</span><span class="p">,</span> <span class="n">score_ss</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">10</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">run_sim</span><span class="p">)(</span><span class="n">seed</span><span class="p">)</span> <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="p">)</span>
-
-    <span class="n">ratios</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">scores</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">ratios_ss</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">scores_ss</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-</p>
-    </details>
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:   38.2s remaining:  5.7min
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:   46.6s remaining:  2.8min
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:   51.3s remaining:  1.7min
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:   53.2s remaining:  1.0min
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:   56.2s remaining:   40.7s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:   58.5s remaining:   25.1s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:  1.0min remaining:   13.4s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:  1.1min remaining:    4.1s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:  1.1min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:   36.1s remaining:  5.4min
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:   43.2s remaining:  2.6min
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:   46.6s remaining:  1.5min
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:   50.4s remaining:   59.2s
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:   52.6s remaining:   38.1s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:   53.7s remaining:   23.0s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:   56.4s remaining:   12.4s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:  1.0min remaining:    3.9s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:  1.1min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:   35.0s remaining:  5.2min
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:   43.3s remaining:  2.6min
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:   45.7s remaining:  1.5min
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:   49.9s remaining:   58.6s
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:   53.1s remaining:   38.4s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:   54.9s remaining:   23.5s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:   57.3s remaining:   12.6s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:  1.0min remaining:    3.9s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:  1.1min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:   15.2s remaining:  2.3min
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:   16.4s remaining:   58.0s
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:   18.1s remaining:   35.1s
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:   20.5s remaining:   24.0s
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:   21.6s remaining:   15.7s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:   26.8s remaining:   11.5s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:   39.5s remaining:    8.7s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:   48.3s remaining:    3.1s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:   51.6s finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:    6.9s remaining:  1.0min
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:    8.0s remaining:   28.3s
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:    8.9s remaining:   17.3s
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:    9.3s remaining:   10.9s
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:    9.6s remaining:    7.0s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:   10.0s remaining:    4.3s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:   10.7s remaining:    2.3s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:   11.3s remaining:    0.7s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:   11.9s finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   5 out of  50 | elapsed:    5.0s remaining:   44.7s
-[Parallel(n_jobs=-1)]: Done  11 out of  50 | elapsed:    5.9s remaining:   20.8s
-[Parallel(n_jobs=-1)]: Done  17 out of  50 | elapsed:    6.2s remaining:   12.1s
-[Parallel(n_jobs=-1)]: Done  23 out of  50 | elapsed:    6.5s remaining:    7.6s
-[Parallel(n_jobs=-1)]: Done  29 out of  50 | elapsed:    6.7s remaining:    4.9s
-[Parallel(n_jobs=-1)]: Done  35 out of  50 | elapsed:    7.0s remaining:    3.0s
-[Parallel(n_jobs=-1)]: Done  41 out of  50 | elapsed:    7.2s remaining:    1.6s
-[Parallel(n_jobs=-1)]: Done  47 out of  50 | elapsed:    7.9s remaining:    0.5s
-[Parallel(n_jobs=-1)]: Done  50 out of  50 | elapsed:    8.4s finished
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    
-
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse-output</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">sem</span>
 <span class="n">error</span> <span class="o">=</span> <span class="p">[</span><span class="n">sem</span><span class="p">(</span><span class="n">ratios</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_p</span><span class="p">)]</span>
 <span class="n">average</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ratios</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_p</span><span class="p">)]</span>
@@ -375,7 +210,8 @@ window.onload = wrap_img;
     </div>
 </div>
 </div>
-
+</p>
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
@@ -435,161 +271,6 @@ window.onload = wrap_img;
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="c1"># from graspy.match import GraphMatch as GMP</span>
-<span class="kn">from</span> <span class="nn">graspologic.simulations</span> <span class="kn">import</span> <span class="n">sbm_corr</span>
-<span class="c1"># from scipy.optimize import linear_sum_assignment</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">pairwise_distances</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="mi">25</span>
-<span class="n">t</span><span class="o">=</span><span class="mi">5</span>
-<span class="c1"># gmp = GraphMatch(&#39;maximize&#39;:True, &#39;tol&#39;:0.000001,&#39;maxiter&#39;:30, &#39;shuffle_input&#39;:True)</span>
-<span class="k">def</span> <span class="nf">match_ratio</span><span class="p">(</span><span class="n">inds</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">inds</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">/</span> <span class="n">n</span>
-
-        
-<span class="n">n</span> <span class="o">=</span> <span class="mi">1500</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">r</span>
-<span class="c1"># rhos = 0.1 * np.arange(11)[5:]</span>
-<span class="n">rhos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mf">10.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span><span class="mf">0.1</span>
-<span class="n">n_p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhos</span><span class="p">)</span>
-
-<span class="n">ratios</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-<span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-
-<span class="n">ratios_ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-<span class="n">scores_ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_p</span><span class="p">,</span><span class="n">m</span><span class="p">))</span>
-
-
-<span class="n">n_per_block</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">n_blocks</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">block_members</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n_blocks</span> <span class="o">*</span> <span class="p">[</span><span class="n">n_per_block</span><span class="p">])</span>
-<span class="n">block_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]])</span>
-<span class="n">directed</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">loops</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">rho</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rhos</span><span class="p">):</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">8888</span><span class="p">)</span>
-    <span class="n">seeds</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mf">1e8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
-    <span class="k">def</span> <span class="nf">run_sim</span><span class="p">(</span><span class="n">seed</span><span class="p">):</span>
-        
-        <span class="n">A1</span><span class="p">,</span> <span class="n">A2</span> <span class="o">=</span> <span class="n">sbm_corr</span><span class="p">(</span>
-            <span class="n">block_members</span><span class="p">,</span> <span class="n">block_probs</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="n">directed</span><span class="p">,</span> <span class="n">loops</span><span class="o">=</span><span class="n">loops</span>
-        <span class="p">)</span>
-        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">res_opt</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="n">score_ss</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">res_opt_ss</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">quadratic_assignment</span><span class="p">(</span><span class="n">A1</span><span class="p">,</span><span class="n">A2</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maximize&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span><span class="mf">0.000001</span><span class="p">,</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;shuffle_input&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">fun</span><span class="o">&gt;</span><span class="n">score</span><span class="p">:</span>
-                <span class="n">perm</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">col_ind</span>
-                <span class="n">score</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">fun</span>
-
-            <span class="n">res_ss</span> <span class="o">=</span> <span class="n">quadratic_assignment_ls</span><span class="p">(</span><span class="n">A1</span><span class="p">,</span><span class="n">A2</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maximize&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span><span class="mf">0.000001</span><span class="p">,</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;shuffle_input&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">fun</span><span class="o">&gt;</span><span class="n">score_ss</span><span class="p">:</span>
-                <span class="n">perm_ss</span> <span class="o">=</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">col_ind</span>
-                <span class="n">score_ss</span> <span class="o">=</span> <span class="n">res_ss</span><span class="o">.</span><span class="n">fun</span>
-                
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">match_ratio</span><span class="p">(</span><span class="n">perm</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-
-        <span class="n">ratio_ss</span> <span class="o">=</span> <span class="n">match_ratio</span><span class="p">(</span><span class="n">perm_ss</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">ratio_ss</span><span class="p">,</span> <span class="n">score_ss</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">10</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">run_sim</span><span class="p">)(</span><span class="n">seed</span><span class="p">)</span> <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="p">)</span>
-
-    <span class="n">ratios</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">scores</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">ratios_ss</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-    <span class="n">scores_ss</span><span class="p">[</span><span class="n">k</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-</p>
-    </details>
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   4 out of  25 | elapsed:  8.1min remaining: 42.7min
-[Parallel(n_jobs=-1)]: Done   7 out of  25 | elapsed:  8.2min remaining: 21.1min
-[Parallel(n_jobs=-1)]: Done  10 out of  25 | elapsed: 10.7min remaining: 16.1min
-[Parallel(n_jobs=-1)]: Done  13 out of  25 | elapsed: 14.0min remaining: 12.9min
-[Parallel(n_jobs=-1)]: Done  16 out of  25 | elapsed: 14.8min remaining:  8.3min
-[Parallel(n_jobs=-1)]: Done  19 out of  25 | elapsed: 15.9min remaining:  5.0min
-[Parallel(n_jobs=-1)]: Done  22 out of  25 | elapsed: 17.6min remaining:  2.4min
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 19.2min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 19.2min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   4 out of  25 | elapsed:  7.6min remaining: 39.9min
-[Parallel(n_jobs=-1)]: Done   7 out of  25 | elapsed:  8.2min remaining: 21.0min
-[Parallel(n_jobs=-1)]: Done  10 out of  25 | elapsed: 10.5min remaining: 15.7min
-[Parallel(n_jobs=-1)]: Done  13 out of  25 | elapsed: 12.1min remaining: 11.2min
-[Parallel(n_jobs=-1)]: Done  16 out of  25 | elapsed: 13.1min remaining:  7.4min
-[Parallel(n_jobs=-1)]: Done  19 out of  25 | elapsed: 13.8min remaining:  4.4min
-[Parallel(n_jobs=-1)]: Done  22 out of  25 | elapsed: 15.6min remaining:  2.1min
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 26.3min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 26.3min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   4 out of  25 | elapsed:  7.6min remaining: 40.1min
-[Parallel(n_jobs=-1)]: Done   7 out of  25 | elapsed:  7.7min remaining: 19.9min
-[Parallel(n_jobs=-1)]: Done  10 out of  25 | elapsed:  7.9min remaining: 11.9min
-[Parallel(n_jobs=-1)]: Done  13 out of  25 | elapsed:  8.0min remaining:  7.4min
-[Parallel(n_jobs=-1)]: Done  16 out of  25 | elapsed: 10.7min remaining:  6.0min
-[Parallel(n_jobs=-1)]: Done  19 out of  25 | elapsed: 11.6min remaining:  3.7min
-[Parallel(n_jobs=-1)]: Done  22 out of  25 | elapsed: 12.0min remaining:  1.6min
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 15.2min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 15.2min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   4 out of  25 | elapsed:  8.0min remaining: 41.9min
-[Parallel(n_jobs=-1)]: Done   7 out of  25 | elapsed:  9.8min remaining: 25.2min
-[Parallel(n_jobs=-1)]: Done  10 out of  25 | elapsed: 10.7min remaining: 16.0min
-[Parallel(n_jobs=-1)]: Done  13 out of  25 | elapsed: 11.3min remaining: 10.4min
-[Parallel(n_jobs=-1)]: Done  16 out of  25 | elapsed: 11.4min remaining:  6.4min
-[Parallel(n_jobs=-1)]: Done  19 out of  25 | elapsed: 11.7min remaining:  3.7min
-[Parallel(n_jobs=-1)]: Done  22 out of  25 | elapsed: 12.4min remaining:  1.7min
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 13.3min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed: 13.3min finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 56 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   4 out of  25 | elapsed:  4.9min remaining: 25.8min
-[Parallel(n_jobs=-1)]: Done   7 out of  25 | elapsed:  5.0min remaining: 12.8min
-[Parallel(n_jobs=-1)]: Done  10 out of  25 | elapsed:  6.7min remaining: 10.0min
-[Parallel(n_jobs=-1)]: Done  13 out of  25 | elapsed:  7.4min remaining:  6.8min
-[Parallel(n_jobs=-1)]: Done  16 out of  25 | elapsed:  7.7min remaining:  4.3min
-[Parallel(n_jobs=-1)]: Done  19 out of  25 | elapsed:  8.1min remaining:  2.6min
-[Parallel(n_jobs=-1)]: Done  22 out of  25 | elapsed:  8.4min remaining:  1.1min
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed:  8.7min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done  25 out of  25 | elapsed:  8.7min finished
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    
-
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#collapse_output</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">sem</span>
 <span class="c1"># error_1500 = [sem(ratios[i,:]) for i in range(n_p)]</span>
 <span class="c1"># average_1500 = [np.mean(ratios[i,:] ) for i in range(n_p)]</span>
@@ -615,7 +296,8 @@ window.onload = wrap_img;
     </div>
 </div>
 </div>
-
+</p>
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
